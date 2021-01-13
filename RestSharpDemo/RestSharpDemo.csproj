@@ -117,6 +117,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>GetPosts.feature</DependentUpon>
     </Compile>
+    <Compile Include="Model\DemoCust.cs" />
     <Compile Include="Model\Posts.cs" />
     <Compile Include="Steps\GetPostsSteps.cs" />
     <Compile Include="UnitTest1.cs" />

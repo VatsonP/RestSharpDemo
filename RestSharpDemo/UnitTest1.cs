@@ -7,6 +7,10 @@ using NUnit.Framework;
 using RestSharp;
 using RestSharpDemo.Model;
 using RestSharpDemo.Utilities;
+//using MbDotNet;
+//using MbDotNet.Models.Imposters;
+//using MbDotNet.Exceptions;
+
 
 namespace RestSharpDemo
 {
@@ -20,6 +24,24 @@ namespace RestSharpDemo
                 PropertyNameCaseInsensitive = true,
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase
             };
+
+        [Test]
+        public void GetForDemoCustFromMockMontebank()
+        {
+            //localhost:5002/customers/3
+            var client = new RestClient("http://localhost:5002/");
+
+            var request = new RestRequest("customers/{custid}", Method.GET);
+            request.AddUrlSegment("custid", 3);
+
+            var response = client.Execute(request);
+
+            //Lib 1 - Deserialize<DemoCust> {or Deserialize<IList<DemoCust>>} based response (System.Text.Json;)
+            var outJsonDemoCust = JsonSerializer.Deserialize<DemoCust>(json: response.Content, 
+                                                                    options: jsonSerializerOptions);
+            Console.WriteLine(outJsonDemoCust.ToString());
+            Assert.That(outJsonDemoCust.lastName, Is.EqualTo("Westoff"), "last_name is not correct");
+        }
 
         [Test]
         public void GetTestMethod()
@@ -118,5 +140,5 @@ namespace RestSharpDemo
 
         }
 
-      }
+    }
 }
