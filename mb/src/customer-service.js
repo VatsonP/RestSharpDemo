@@ -25,7 +25,7 @@ function addService() {
                         headers: {
                             "Content-Type": "application/json"
                         },
-                        body: '{ "firstName": "${row}[first_name]", "lastName": "${row}[last_name]", "favColor": "${row}[favorite_color]" }'
+                        body: '{ "id": "${row}[id]", "firstName": "${row}[first_name]", "lastName": "${row}[last_name]", "email": "${row}[email]", "favColor": "${row}[favorite_color]" }'
                     },
                     _behaviors: {
                         lookup: [
