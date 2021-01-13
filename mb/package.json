@@ -1,0 +1,15 @@
+{
+  "name": "rest-mounte-demo",
+  "version": "1.0.0",
+  "description": "A .NET REST client for demo interacting with mountebank ( www.mbtest.org).",
+  "main": "index.js",
+  "scripts": {
+    "start-mb": "node src/index.js"
+  },
+  "author": "VatsonP",
+  "license": "MIT",
+  "dependencies": {
+    "mountebank": "^2.4.0",
+    "node-fetch": "^2.6.1"
+  }
+}

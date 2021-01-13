@@ -1,0 +1,16 @@
+REST-access to local Auth  API Server for get access_token
+
+Postman Request:
+
+	PUT {{url_lh3000}}/auth/login
+Body
+	{
+	    "email": "kartmcad@gmail.com",
+	    "password": "haha123"
+	}
+
+Output:
+
+{
+    "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImthcnRtY2FkQGdtYWlsLmNvbSIsInBhc3N3b3JkIjoiaGFoYTEyMyIsImlhdCI6MTYxMDA0MTg3MCwiZXhwIjoxNjEwMDQ1NDcwfQ.6OXFAwTtWDprrwmgc3etoU9rzg40bMissAzpaZhVmjU"
+}
