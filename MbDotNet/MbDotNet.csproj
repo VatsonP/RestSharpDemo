@@ -1,0 +1,33 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard1.3</TargetFramework>
+    <SignAssembly>True</SignAssembly>
+    <AssemblyOriginatorKeyFile>MbDotNetKey.snk</AssemblyOriginatorKeyFile>
+    <!-- This is necessary until full signing is available on non-windows platforms -->
+    <!-- See: https://github.com/dotnet/roslyn/issues/8210 -->
+    <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
+    <AssemblyVersion>5.0.0.0</AssemblyVersion>
+    <FileVersion>5.0.0.0</FileVersion>
+
+    <!-- NuGet Metadata-->
+    <Version>5.0.0-rc6</Version>
+    <PackageId>MbDotNet</PackageId>
+    <Title>MbDotNet</Title>
+    <Authors>Matthew Herman</Authors>
+    <Description>A .NET client library for interacting with mountebank (www.mbtest.org).</Description>
+    <Copyright>Copyright ©  2020</Copyright>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>http://github.com/mattherman/MbDotNet</PackageProjectUrl>
+    <PackageReleaseNotes>https://github.com/mattherman/MbDotNet/releases/tag/v5.0.0-rc6</PackageReleaseNotes>
+    <PackageTags>mountebank client wrapper</PackageTags>
+    <BuildOutputTargetFolder>lib</BuildOutputTargetFolder>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="10.0.2" />
+    <PackageReference Include="System.Xml.XmlSerializer" Version="4.3.0" />
+  </ItemGroup>
+
+</Project>
