@@ -117,6 +117,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>GetPosts.feature</DependentUpon>
     </Compile>
+    <Compile Include="Model\DataProviders.cs" />
     <Compile Include="Model\DemoCust.cs" />
     <Compile Include="Model\Posts.cs" />
     <Compile Include="Steps\GetPostsSteps.cs" />
@@ -131,6 +132,12 @@
       <LastGenOutput>GetPosts.feature.cs</LastGenOutput>
     </None>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MbDotNet\MbDotNet.csproj">
+      <Project>{2eff055b-3e30-4be7-aad0-5ea682fe4d07}</Project>
+      <Name>MbDotNet</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

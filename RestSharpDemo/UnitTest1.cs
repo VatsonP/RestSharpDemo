@@ -7,9 +7,8 @@ using NUnit.Framework;
 using RestSharp;
 using RestSharpDemo.Model;
 using RestSharpDemo.Utilities;
-//using MbDotNet;
-//using MbDotNet.Models.Imposters;
-//using MbDotNet.Exceptions;
+using MbDotNet;
+using MbDotNet.Models.Responses.Fields;
 
 
 namespace RestSharpDemo
@@ -25,22 +24,47 @@ namespace RestSharpDemo
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase
             };
 
-        [Test]
-        public void GetForDemoCustFromMockMontebank()
+
+        [Test, TestCaseSource(typeof(DataProviders), "ValidCustomers")]
+        public async Task GetForDemoCustFromMockMB(DemoCust demoCust)
         {
-            //localhost:5002/customers/3
-            var client = new RestClient("http://localhost:5002/");
+            int imposterPortNum = 4545;
+            int custid = 3;
 
-            var request = new RestRequest("customers/{custid}", Method.GET);
-            request.AddUrlSegment("custid", 3);
+            MountebankClient mbClient = new MountebankClient("http://localhost:2525/");
 
-            var response = client.Execute(request);
+            var imposter = mbClient.CreateHttpImposter(imposterPortNum, "StubExample");
 
-            //Lib 1 - Deserialize<DemoCust> {or Deserialize<IList<DemoCust>>} based response (System.Text.Json;)
-            var outJsonDemoCust = JsonSerializer.Deserialize<DemoCust>(json: response.Content, 
-                                                                    options: jsonSerializerOptions);
-            Console.WriteLine(outJsonDemoCust.ToString());
-            Assert.That(outJsonDemoCust.lastName, Is.EqualTo("Westoff"), "last_name is not correct");
+            try
+            {
+
+                imposter.AddStub().OnPathAndMethodEqual("/customers/" + custid.ToString(), MbDotNet.Enums.Method.Get)
+                    .ReturnsJson(System.Net.HttpStatusCode.Created, demoCust);
+                    //.ReturnsBody(System.Net.HttpStatusCode.BadRequest, "<error>DemoCust record already exists</error>");
+
+                await mbClient.SubmitAsync(imposter);
+
+                //localhost:4545/customers/3
+                var client = new RestClient("http://localhost:"+ imposterPortNum.ToString() + "/");
+
+                var request = new RestRequest("customers/{custid}", RestSharp.Method.GET);
+                request.AddUrlSegment("custid", custid.ToString());
+
+                var response = client.Execute(request);
+
+                //Lib 1 - Deserialize<DemoCust> {or Deserialize<IList<DemoCust>>} based response (System.Text.Json;)
+                var outJsonDemoCust = JsonSerializer.Deserialize<DemoCust>(json: response.Content,
+                                                                        options: jsonSerializerOptions);
+                Console.WriteLine(outJsonDemoCust.ToString());
+                Assert.That(outJsonDemoCust.lastName, Is.EqualTo("Westoff"), "last_name is not correct");
+            }
+            finally
+            {
+                if (mbClient != null && imposter != null)
+                {
+                    await mbClient.DeleteImposterAsync(imposterPortNum);
+                }
+            }
         }
 
         [Test]
