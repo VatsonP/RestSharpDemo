@@ -32,6 +32,27 @@ namespace RestSharpDemo.Model
             this.email = email;
             this.favColor = favColor;
         }
+
+        public override bool Equals(Object obj)
+        {
+            //Check for null and compare run-time types.
+            if ((obj == null) || !this.GetType().Equals(obj.GetType()))
+            {
+                return false;
+            }
+            else
+            {
+                CustData p = (CustData)obj;
+                return (id == p.id) && (firstName == p.firstName) && (lastName == p.lastName)
+                                    && (email == p.email) && (favColor == p.favColor); 
+            }
+        }
+
+        public override string ToString()
+        {
+            return String.Format("CustData(id= {0}, firstName= {1}, lastName= {2}, email= {3}, favColor= {4}  )", 
+                                 id, firstName, lastName, email, favColor);
+        }
     }
 }
 
