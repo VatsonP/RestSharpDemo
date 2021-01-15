@@ -1,54 +1,23 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections.Generic;
+
 
 namespace RestSharpDemo.Model
 {
     internal class DataProviders
     {
-        public static IEnumerable ValidCustomers
+        public static IEnumerable<CustData> ValidCustomers
         {
             get
-            {   
-                /*
+            {
                 //1,Erda,Birkin,ebirkinb @google.com.hk,Aquamarine
-                yield return new DemoCust()
-                {
-                    id = "1",
-                    firstName = "Erda",
-                    lastName = "Birkin",
-                    email = "ebirkinb@google.com",
-                    favColor = "Aquamarine"
-                };
+                //yield return new CustData(1, "Erda", "Birkin", "ebirkinb@google.com", "Aquamarine");
                 //2,Cherey,Endacott,cendacottc @freewebs.com,Fuscia
-                yield return new DemoCust()
-                {
-                    id = "2",
-                    firstName = "Cherey",
-                    lastName = "Endacott",
-                    email = "cendacottc@freewebs.com",
-                    favColor = "Fuscia"
-                };
-                */
+                //yield return new CustData(2, "Cherey", "Endacott", "cendacottc@freewebs.com", "Fuscia");
                 //3,Shalom,Westoff,swestoffd @about.me,Red
-                yield return new DemoCust()
-                {
-                    id = "3",
-                    firstName = "Shalom",
-                    lastName = "Westoff",
-                    email = "swestoffd@about.me",
-                    favColor = "Red"
-                };
-                /*
+                yield return new CustData(3, "Shalom", "Westoff", "swestoffd@about.me", "Red");
                 //4,Jo,Goulborne,jgoulbornee @example.com,Red
-                yield return new DemoCust()
-                {
-                    id = "4",
-                    firstName = "Jo",
-                    lastName = "Goulborne",
-                    email = "jgoulbornee@example.com",
-                    favColor = "Red"
-                };
-                */
+                //yield return new CustData(4, "Jo", "Goulborne", "jgoulbornee@example.com", "Red");
+              
                 /*
                  ... 
                 */

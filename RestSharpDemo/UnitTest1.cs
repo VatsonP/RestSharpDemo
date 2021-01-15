@@ -25,8 +25,8 @@ namespace RestSharpDemo
             };
 
 
-        [Test, TestCaseSource(typeof(DataProviders), "ValidCustomers")]
-        public async Task GetForDemoCustFromMockMB(DemoCust demoCust)
+        [Test, TestCaseSource(typeof(DataProviders), nameof(DataProviders.ValidCustomers))]
+        public async Task GetForDemoCustFromMockMB(CustData custData)
         {
             int imposterPortNum = 4545;
             int custid = 3;
@@ -39,12 +39,15 @@ namespace RestSharpDemo
             {
 
                 imposter.AddStub().OnPathAndMethodEqual("/customers/" + custid.ToString(), MbDotNet.Enums.Method.Get)
-                    .ReturnsJson(System.Net.HttpStatusCode.Created, demoCust);
-                    //.ReturnsBody(System.Net.HttpStatusCode.BadRequest, "<error>DemoCust record already exists</error>");
+                    .ReturnsJson(System.Net.HttpStatusCode.Created, custData);
+                /*
+                    .ReturnsBody(System.Net.HttpStatusCode.BadRequest, "<error>DemoCust record already exists</error>");
+                */
 
                 await mbClient.SubmitAsync(imposter);
 
-                //localhost:4545/customers/3
+
+                //GET request to localhost:4545/customers/3
                 var client = new RestClient("http://localhost:"+ imposterPortNum.ToString() + "/");
 
                 var request = new RestRequest("customers/{custid}", RestSharp.Method.GET);
@@ -53,7 +56,7 @@ namespace RestSharpDemo
                 var response = client.Execute(request);
 
                 //Lib 1 - Deserialize<DemoCust> {or Deserialize<IList<DemoCust>>} based response (System.Text.Json;)
-                var outJsonDemoCust = JsonSerializer.Deserialize<DemoCust>(json: response.Content,
+                var outJsonDemoCust = JsonSerializer.Deserialize<CustData>(json: response.Content,
                                                                         options: jsonSerializerOptions);
                 Console.WriteLine(outJsonDemoCust.ToString());
                 Assert.That(outJsonDemoCust.lastName, Is.EqualTo("Westoff"), "last_name is not correct");
