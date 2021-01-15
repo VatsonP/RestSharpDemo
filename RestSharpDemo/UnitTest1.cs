@@ -29,7 +29,7 @@ namespace RestSharpDemo
         public async Task GetForDemoCustFromMockMB(CustData custData)
         {
             int imposterPortNum = 4545;
-            int custid = 3;
+            int custid = custData.id;
 
             MountebankClient mbClient = new MountebankClient("http://localhost:2525/");
 
@@ -58,8 +58,9 @@ namespace RestSharpDemo
                 //Lib 1 - Deserialize<DemoCust> {or Deserialize<IList<DemoCust>>} based response (System.Text.Json;)
                 var outJsonDemoCust = JsonSerializer.Deserialize<CustData>(json: response.Content,
                                                                         options: jsonSerializerOptions);
+
                 Console.WriteLine(outJsonDemoCust.ToString());
-                Assert.That(outJsonDemoCust.lastName, Is.EqualTo("Westoff"), "last_name is not correct");
+                Assert.That(outJsonDemoCust, Is.EqualTo(custData), "custData is not correct");
             }
             finally
             {
