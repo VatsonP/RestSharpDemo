@@ -1,20 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+
 
 namespace RestSharpDemo.Model
 {
-    /* //DemoCust
-    {
-    "id": "3",
-    "firstName": "Shalom",
-    "lastName": "Westoff",
-    "email": "swestoffd@about.me",
-    "favColor": "Red"
-    }
-    */
     public class CustData
     {
         //id,first_name,last_name,email,favorite_color
@@ -49,16 +38,16 @@ namespace RestSharpDemo.Model
         }
         public override int GetHashCode()
         {
-            return System.Text.ASCIIEncoding.Unicode.GetByteCount(id.ToString()) ^
-                   System.Text.ASCIIEncoding.Unicode.GetByteCount(firstName) ^
-                   System.Text.ASCIIEncoding.Unicode.GetByteCount(lastName) ^
-                   System.Text.ASCIIEncoding.Unicode.GetByteCount(email) ^
-                   System.Text.ASCIIEncoding.Unicode.GetByteCount(favColor);
+            return ASCIIEncoding.Unicode.GetByteCount(id.ToString()) ^
+                   ASCIIEncoding.Unicode.GetByteCount(firstName) *
+                   ASCIIEncoding.Unicode.GetByteCount(lastName) ^
+                   ASCIIEncoding.Unicode.GetByteCount(email) *
+                   ASCIIEncoding.Unicode.GetByteCount(favColor);
         }
 
         public override string ToString()
         {
-            return String.Format("CustData(id= {0}, firstName= {1}, lastName= {2}, email= {3}, favColor= {4}  )", 
+            return String.Format("CustData(id= {0}, firstName= {1}, lastName= {2}, email= {3}, favColor= {4} )", 
                                  id, firstName, lastName, email, favColor);
         }
     }
