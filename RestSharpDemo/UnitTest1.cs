@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
@@ -8,7 +9,11 @@ using RestSharp;
 using RestSharpDemo.Model;
 using RestSharpDemo.Utilities;
 using MbDotNet;
+using MbDotNet.Models.Stubs;
+using MbDotNet.Models.Responses;
 using MbDotNet.Models.Responses.Fields;
+using MbDotNet.Models.Predicates;
+using MbDotNet.Models.Predicates.Fields;
 
 
 namespace RestSharpDemo
@@ -24,52 +29,6 @@ namespace RestSharpDemo
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase
             };
 
-
-        [Test, TestCaseSource(typeof(DataProviders), nameof(DataProviders.ValidCustomers))]
-        public async Task GetForDemoCustFromMockMB(CustData custData)
-        {
-            int imposterPortNum = 4545;
-            int custid = custData.id;
-
-            MountebankClient mbClient = new MountebankClient("http://localhost:2525/");
-
-            var imposter = mbClient.CreateHttpImposter(imposterPortNum, "StubExample");
-
-            try
-            {
-
-                imposter.AddStub().OnPathAndMethodEqual("/customers/" + custid.ToString(), MbDotNet.Enums.Method.Get)
-                    .ReturnsJson(System.Net.HttpStatusCode.Created, custData);
-                /*
-                    .ReturnsBody(System.Net.HttpStatusCode.BadRequest, "<error>DemoCust record already exists</error>");
-                */
-
-                await mbClient.SubmitAsync(imposter);
-
-
-                //GET request to localhost:4545/customers/3
-                var client = new RestClient("http://localhost:"+ imposterPortNum.ToString() + "/");
-
-                var request = new RestRequest("customers/{custid}", RestSharp.Method.GET);
-                request.AddUrlSegment("custid", custid.ToString());
-
-                var response = client.Execute(request);
-
-                //Lib 1 - Deserialize<DemoCust> {or Deserialize<IList<DemoCust>>} based response (System.Text.Json;)
-                var outJsonDemoCust = JsonSerializer.Deserialize<CustData>(json: response.Content,
-                                                                        options: jsonSerializerOptions);
-
-                Console.WriteLine(outJsonDemoCust.ToString());
-                Assert.That(outJsonDemoCust, Is.EqualTo(custData), "custData is not correct");
-            }
-            finally
-            {
-                if (mbClient != null && imposter != null)
-                {
-                    await mbClient.DeleteImposterAsync(imposterPortNum);
-                }
-            }
-        }
 
         [Test]
         public void GetTestMethod()
@@ -142,6 +101,7 @@ namespace RestSharpDemo
 
         }
 
+
         [Test]
         public void PostWithAsync()
         {
@@ -165,8 +125,122 @@ namespace RestSharpDemo
             //Assert.That(resultAuthor, Is.EqualTo("Execute Automation"), "Author is not correct");
 
             Assert.That(response.Data.author, Is.EqualTo("Execute Automation"), "Author is not correct");
-
         }
+
+        [Test, TestCaseSource(typeof(DataProviders), nameof(DataProviders.ValidCustomers))]
+        public async Task GetForDemoCustFromMockMB(CustData custData)
+        {
+            int imposterPortNum = 4545;
+            int custid = custData.id;
+            string mbClientBaseLocation = "http://localhost:2525";
+            string requestBaseLocation  = "http://localhost:" + imposterPortNum;
+
+            MountebankClient mbClient = new MountebankClient(mbClientBaseLocation);
+
+            var mbImposter = mbClient.CreateHttpImposter(imposterPortNum, "StubExample");
+            Assert.IsNotNull(mbImposter);
+
+            try
+            {
+               //simple Imposter
+                mbImposter.AddStub().OnPathAndMethodEqual("/customers/" + custid.ToString(), MbDotNet.Enums.Method.Get)
+                          .ReturnsJson(HttpStatusCode.OK, custData);
+
+                await mbClient.SubmitAsync(mbImposter);
+
+
+                Assert.IsNotNull(mbClient.GetHttpImposterAsync(imposterPortNum));
+
+                //GET request to localhost:4545/customers/{custid}
+                var client = new RestClient(requestBaseLocation);
+
+                var request = new RestRequest("/customers/{custid}", RestSharp.Method.GET);
+                request.AddUrlSegment("custid", custid.ToString());
+
+                var response = client.Execute(request);
+
+                //Lib 1 - Deserialize<DemoCust> {or Deserialize<IList<DemoCust>>} based response (System.Text.Json;)
+                var outJsonDemoCust = JsonSerializer.Deserialize<CustData>(json: response.Content,
+                                                                        options: jsonSerializerOptions);
+
+                Console.WriteLine(outJsonDemoCust.ToString());
+                Assert.That(outJsonDemoCust, Is.EqualTo(custData), "custData is not correct");
+            }
+            finally
+            {
+                if (mbClient != null && mbImposter != null)
+                {
+                    await mbClient.DeleteImposterAsync(imposterPortNum);
+                }
+            }
+        }
+
+
+        [Test, TestCaseSource(typeof(DataProviders), nameof(DataProviders.ValidCustomers))]
+        public async Task GetForDemoCustFromMockMBComplex(CustData custData)
+        {
+            int imposterPortNum = 4545;
+            int custid = custData.id;
+            string mbClientBaseLocation = "http://localhost:2525";
+            string requestBaseLocation  = "http://localhost:" + imposterPortNum;
+
+            MountebankClient mbClient = new MountebankClient(mbClientBaseLocation);
+
+            var mbImposter = mbClient.CreateHttpImposter(imposterPortNum, "StubExample");
+            Assert.IsNotNull(mbImposter);
+
+            mbImposter.AddStub().ReturnsStatus(HttpStatusCode.MethodNotAllowed).OnMethodEquals(MbDotNet.Enums.Method.Post);
+            mbImposter.AddStub().ReturnsStatus(HttpStatusCode.MethodNotAllowed).OnMethodEquals(MbDotNet.Enums.Method.Put);
+            mbImposter.AddStub().ReturnsStatus(HttpStatusCode.MethodNotAllowed).OnMethodEquals(MbDotNet.Enums.Method.Delete);
+
+            try
+            {
+                var mbResponseFields = new HttpResponseFields
+                {
+                    StatusCode = HttpStatusCode.BadRequest,
+                    Headers = new Dictionary<string, Object> { { "Location", requestBaseLocation + "/customers/" + custid.ToString() } },
+                    ResponseObject = custData
+                };
+                var mbResponse = new IsResponse<HttpResponseFields>(mbResponseFields);
+                
+                var mbComplexPredicateFields = new HttpPredicateFields
+                {
+                    Method = MbDotNet.Enums.Method.Get,
+                    Path = "/customers/" + custid.ToString()
+                    //QueryParameters = new Dictionary<string, Object> { { "custid", custid.ToString() } },
+                    //Headers = new Dictionary<string, Object> { { "Accept", "application/json" } }
+                };
+                var mbComplexPredicate = new EqualsPredicate<HttpPredicateFields>(mbComplexPredicateFields);
+
+                mbImposter.AddStub().On(mbComplexPredicate).Returns(mbResponse).ReturnsStatus(HttpStatusCode.OK);
+
+                await mbClient.SubmitAsync(mbImposter);
+
+                Assert.IsNotNull(mbClient.GetHttpImposterAsync(imposterPortNum));
+                
+                //GET request to localhost:4545/customers/{custid}
+                var client = new RestClient(requestBaseLocation);
+
+                var request = new RestRequest("/customers/{custid}", Method.GET);
+                request.AddUrlSegment("custid", custid.ToString());
+
+                var response = client.Execute(request);
+
+                //Lib 1 - Deserialize<DemoCust> {or Deserialize<IList<DemoCust>>} based response (System.Text.Json;)
+                var outJsonDemoCust = JsonSerializer.Deserialize<CustData>(json: response.Content,
+                                                                        options: jsonSerializerOptions);
+                Console.WriteLine(outJsonDemoCust.ToString());
+                Assert.That(outJsonDemoCust, Is.EqualTo(custData), "custData is not correct");
+            }
+            finally
+            {
+                if (mbClient != null && mbImposter != null)
+                {
+                    await mbClient.DeleteImposterAsync(imposterPortNum);
+                }
+            }
+        }
+
 
     }
 }
