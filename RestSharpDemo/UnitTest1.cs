@@ -29,9 +29,24 @@ namespace RestSharpDemo
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase
             };
 
+        private T GetReqJsonDeserializeResult<T>(string _requestBaseLocation, string _pathWithParam, 
+                                                 string _paramName, string _paramVal,
+                                                 JsonSerializerOptions _jsonSerializerOptions)
+        {
+            //GET request to localhost:4545/customers/{custid}
+            var client = new RestClient(_requestBaseLocation);
+
+            var request = new RestRequest(_pathWithParam, Method.GET);
+            request.AddUrlSegment(_paramName, _paramVal);
+
+            var response = client.Execute(request);
+
+            //Deserialize<DemoCust> based response (System.Text.Json;)
+            return JsonSerializer.Deserialize<T>(json: response.Content, options: _jsonSerializerOptions);
+        }
 
         [Test]
-        public void GetTestMethod()
+        public void GetTestMethodDemo()
         {
             var client = new RestClient("http://localhost:3000/");
 
@@ -53,7 +68,7 @@ namespace RestSharpDemo
         }
 
         [Test]
-        public void PostWithAnonymousBody()
+        public void PostWithAnonymousBodyDemo()
         {
             var client = new RestClient("http://localhost:3000/");
 
@@ -79,7 +94,7 @@ namespace RestSharpDemo
 
 
         [Test]
-        public void PostWithTypeClassBody()
+        public void PostWithTypeClassBodyDemo()
         {
             var client = new RestClient("http://localhost:3000/");
 
@@ -103,7 +118,7 @@ namespace RestSharpDemo
 
 
         [Test]
-        public void PostWithAsync()
+        public void PostWithAsyncDemo()
         {
             var client = new RestClient("http://localhost:3000/");
 
@@ -126,6 +141,8 @@ namespace RestSharpDemo
 
             Assert.That(response.Data.author, Is.EqualTo("Execute Automation"), "Author is not correct");
         }
+        
+        //----------------------------------------------------------------------------------------------------------------//
 
         [Test, TestCaseSource(typeof(DataProviders), nameof(DataProviders.ValidCustomers))]
         public async Task GetForDemoCustFromMockMB(CustData custData)
@@ -136,6 +153,7 @@ namespace RestSharpDemo
             string requestBaseLocation  = "http://localhost:" + imposterPortNum;
 
             MountebankClient mbClient = new MountebankClient(mbClientBaseLocation);
+            Assert.IsNotNull(mbClient);
 
             var mbImposter = mbClient.CreateHttpImposter(imposterPortNum, "StubExample");
             Assert.IsNotNull(mbImposter);
@@ -148,30 +166,19 @@ namespace RestSharpDemo
 
                 await mbClient.SubmitAsync(mbImposter);
 
-
                 Assert.IsNotNull(mbClient.GetHttpImposterAsync(imposterPortNum));
 
-                //GET request to localhost:4545/customers/{custid}
-                var client = new RestClient(requestBaseLocation);
-
-                var request = new RestRequest("/customers/{custid}", RestSharp.Method.GET);
-                request.AddUrlSegment("custid", custid.ToString());
-
-                var response = client.Execute(request);
-
-                //Lib 1 - Deserialize<DemoCust> {or Deserialize<IList<DemoCust>>} based response (System.Text.Json;)
-                var outJsonDemoCust = JsonSerializer.Deserialize<CustData>(json: response.Content,
-                                                                        options: jsonSerializerOptions);
-
+                //GET Deserialized result of the request to localhost:4545/customers/{custid}
+                CustData outJsonDemoCust = GetReqJsonDeserializeResult<CustData>(_requestBaseLocation: requestBaseLocation,
+                                                                                 _pathWithParam: "/customers/{custid}",
+                                                                                 _paramName: "custid", _paramVal: custid.ToString(),
+                                                                                 _jsonSerializerOptions: jsonSerializerOptions);
                 Console.WriteLine(outJsonDemoCust.ToString());
                 Assert.That(outJsonDemoCust, Is.EqualTo(custData), "custData is not correct");
             }
             finally
             {
-                if (mbClient != null && mbImposter != null)
-                {
-                    await mbClient.DeleteImposterAsync(imposterPortNum);
-                }
+                await mbClient.DeleteImposterAsync(imposterPortNum);
             }
         }
 
@@ -185,6 +192,7 @@ namespace RestSharpDemo
             string requestBaseLocation  = "http://localhost:" + imposterPortNum;
 
             MountebankClient mbClient = new MountebankClient(mbClientBaseLocation);
+            Assert.IsNotNull(mbClient);
 
             var mbImposter = mbClient.CreateHttpImposter(imposterPortNum, "StubExample");
             Assert.IsNotNull(mbImposter);
@@ -217,27 +225,18 @@ namespace RestSharpDemo
                 await mbClient.SubmitAsync(mbImposter);
 
                 Assert.IsNotNull(mbClient.GetHttpImposterAsync(imposterPortNum));
-                
-                //GET request to localhost:4545/customers/{custid}
-                var client = new RestClient(requestBaseLocation);
 
-                var request = new RestRequest("/customers/{custid}", Method.GET);
-                request.AddUrlSegment("custid", custid.ToString());
-
-                var response = client.Execute(request);
-
-                //Lib 1 - Deserialize<DemoCust> {or Deserialize<IList<DemoCust>>} based response (System.Text.Json;)
-                var outJsonDemoCust = JsonSerializer.Deserialize<CustData>(json: response.Content,
-                                                                        options: jsonSerializerOptions);
+                //GET Deserialized result of the request to localhost:4545/customers/{custid}
+                CustData outJsonDemoCust = GetReqJsonDeserializeResult<CustData>(_requestBaseLocation: requestBaseLocation,
+                                                                                 _pathWithParam: "/customers/{custid}",
+                                                                                 _paramName: "custid", _paramVal: custid.ToString(),
+                                                                                 _jsonSerializerOptions: jsonSerializerOptions);
                 Console.WriteLine(outJsonDemoCust.ToString());
                 Assert.That(outJsonDemoCust, Is.EqualTo(custData), "custData is not correct");
             }
             finally
             {
-                if (mbClient != null && mbImposter != null)
-                {
-                    await mbClient.DeleteImposterAsync(imposterPortNum);
-                }
+                await mbClient.DeleteImposterAsync(imposterPortNum);
             }
         }
 
