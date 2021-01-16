@@ -47,6 +47,14 @@ namespace RestSharpDemo.Model
                                     && (email == p.email) && (favColor == p.favColor); 
             }
         }
+        public override int GetHashCode()
+        {
+            return System.Text.ASCIIEncoding.Unicode.GetByteCount(id.ToString()) ^
+                   System.Text.ASCIIEncoding.Unicode.GetByteCount(firstName) ^
+                   System.Text.ASCIIEncoding.Unicode.GetByteCount(lastName) ^
+                   System.Text.ASCIIEncoding.Unicode.GetByteCount(email) ^
+                   System.Text.ASCIIEncoding.Unicode.GetByteCount(favColor);
+        }
 
         public override string ToString()
         {
