@@ -89,7 +89,7 @@ namespace RestSharpDemo
             int imposterPortNum = 4545;
             int custid = custData.id;
             string mbClientBaseLocation = "http://localhost:2525";
-            string requestBaseLocation  = "http://localhost:" + imposterPortNum;
+            string requestBaseLocation = "http://localhost:" + imposterPortNum;
 
             MountebankClient mbClient = new MountebankClient(mbClientBaseLocation);
             Assert.IsNotNull(mbClient);
@@ -105,22 +105,24 @@ namespace RestSharpDemo
             {
                 var mbResponseFields = new HttpResponseFields
                 {
-                    StatusCode = HttpStatusCode.BadRequest,
-                    Headers = new Dictionary<string, Object> { { "Location", requestBaseLocation + "/customers/" + custid.ToString() } },
-                    ResponseObject = custData
+                    StatusCode = HttpStatusCode.OK,
+                    Headers = new Dictionary<string, Object> {
+                                                               { "Content-Type", "application/json" },
+                                                               { "Location", requestBaseLocation + "/customers/" + custid.ToString() }
+                                                             },
+                    ResponseObject = custData,
+                    Mode = "text"
                 };
                 var mbResponse = new IsResponse<HttpResponseFields>(mbResponseFields);
-                
+
                 var mbComplexPredicateFields = new HttpPredicateFields
                 {
                     Method = MbDotNet.Enums.Method.Get,
                     Path = "/customers/" + custid.ToString()
-                    //QueryParameters = new Dictionary<string, Object> { { "custid", custid.ToString() } },
-                    //Headers = new Dictionary<string, Object> { { "Accept", "application/json" } }
                 };
                 var mbComplexPredicate = new EqualsPredicate<HttpPredicateFields>(mbComplexPredicateFields);
 
-                mbImposter.AddStub().On(mbComplexPredicate).Returns(mbResponse).ReturnsStatus(HttpStatusCode.OK);
+                mbImposter.AddStub().On(mbComplexPredicate).Returns(mbResponse);
 
                 await mbClient.SubmitAsync(mbImposter);
 
